@@ -1,4 +1,6 @@
 # sd-webui-freeu
+This is an attempt to fix bug since original repo owner stop maintaining
+
 implementation of [FreeU](https://github.com/ChenyangSi/FreeU) as an [a1111 sd webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) extension
 
 At each of the 3 stages of the UNet decoder:
