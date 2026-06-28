@@ -436,6 +436,8 @@ def on_ui_settings():
 
 script_callbacks.on_ui_settings(on_ui_settings)
 
+if 'Inited' not in globals():
+    unet.patch()
+    xyz_grid.patch()
 
-unet.patch()
-xyz_grid.patch()
+Inited = True
