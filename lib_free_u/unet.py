@@ -9,8 +9,12 @@ from modules.sd_hijack_unet import th
 import torch
 
 
+freeu_og_cat = None
+freeu_og_cn_cat = None
+
 def patch():
-    th.cat = functools.partial(free_u_cat_hijack, original_function=th.cat)
+    freeu_og_cat = th.cat
+    th.cat = functools.partial(free_u_cat_hijack_wrap, original_function=th.cat)
 
     cn_script_paths = [
         str(pathlib.Path(scripts.basedir()).parent.parent / "extensions-builtin" / "sd-webui-controlnet"),
@@ -23,13 +27,42 @@ def patch():
     except ImportError:
         cn_status = "disabled"
     else:
-        controlnet_hook.th.cat = functools.partial(free_u_cat_hijack, original_function=controlnet_hook.th.cat)
+        freeu_og_cn_cat = controlnet_hook.th.cat
+        controlnet_hook.th.cat = functools.partial(free_u_cat_hijack_wrap, original_function=controlnet_hook.th.cat)
     finally:
         for p in cn_script_paths:
             sys.path.remove(p)
 
         print("[sd-webui-freeu]", f"Controlnet support: *{cn_status}*")
 
+def unpatch():
+    th.cat = freeu_og_cat
+
+    cn_script_paths = [
+        str(pathlib.Path(scripts.basedir()).parent.parent / "extensions-builtin" / "sd-webui-controlnet"),
+        str(pathlib.Path(scripts.basedir()).parent / "sd-webui-controlnet"),
+    ]
+    sys.path[0:0] = cn_script_paths
+    cn_status = "disabled"
+    try:
+        import scripts.hook as controlnet_hook
+    except ImportError:
+        cn_status = "disabled"
+    else:
+        controlnet_hook.th.cat = freeu_og_cn_cat
+    finally:
+        for p in cn_script_paths:
+            sys.path.remove(p)
+
+        print("[sd-webui-freeu]", f"Controlnet support: *{cn_status}*")
+
+def free_u_cat_hijack_wrap(hs, *args, original_function, **kwargs):
+    func = original_function
+
+    for i in range(int(global_state.instance.process_loop)):
+        func = functools.partial(free_u_cat_hijack, original_function=func)
+
+    return func(hs, *args, **kwargs)
 
 def free_u_cat_hijack(hs, *args, original_function, **kwargs):
     if not global_state.instance.enable:
