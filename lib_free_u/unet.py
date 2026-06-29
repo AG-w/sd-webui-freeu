@@ -33,7 +33,7 @@ def patch():
         for p in cn_script_paths:
             sys.path.remove(p)
 
-        print("[sd-webui-freeu]", f"Controlnet support: *{cn_status}*")
+        #print("[sd-webui-freeu]", f"Controlnet support: *{cn_status}*")
 
 def unpatch():
     th.cat = freeu_og_cat
@@ -54,7 +54,7 @@ def unpatch():
         for p in cn_script_paths:
             sys.path.remove(p)
 
-        print("[sd-webui-freeu]", f"Controlnet support: *{cn_status}*")
+        #print("[sd-webui-freeu]", f"Controlnet support: *{cn_status}*")
 
 def free_u_cat_hijack_wrap(hs, *args, original_function, **kwargs):
     func = original_function
