@@ -9,11 +9,8 @@ from modules.sd_hijack_unet import th
 import torch
 
 
-freeu_og_cat = None
-freeu_og_cn_cat = None
-
 def patch():
-    freeu_og_cat = th.cat
+    global_state.instance.freeu_og_cat = th.cat
     th.cat = functools.partial(free_u_cat_hijack_wrap, original_function=th.cat)
 
     cn_script_paths = [
@@ -27,7 +24,7 @@ def patch():
     except ImportError:
         cn_status = "disabled"
     else:
-        freeu_og_cn_cat = controlnet_hook.th.cat
+        global_state.instance.freeu_og_cn_cat = controlnet_hook.th.cat
         controlnet_hook.th.cat = functools.partial(free_u_cat_hijack_wrap, original_function=controlnet_hook.th.cat)
     finally:
         for p in cn_script_paths:
@@ -36,7 +33,7 @@ def patch():
         #print("[sd-webui-freeu]", f"Controlnet support: *{cn_status}*")
 
 def unpatch():
-    th.cat = freeu_og_cat
+    th.cat = global_state.instance.freeu_og_cat
 
     cn_script_paths = [
         str(pathlib.Path(scripts.basedir()).parent.parent / "extensions-builtin" / "sd-webui-controlnet"),
@@ -49,7 +46,7 @@ def unpatch():
     except ImportError:
         cn_status = "disabled"
     else:
-        controlnet_hook.th.cat = freeu_og_cn_cat
+        controlnet_hook.th.cat = global_state.instance.freeu_og_cn_cat
     finally:
         for p in cn_script_paths:
             sys.path.remove(p)
