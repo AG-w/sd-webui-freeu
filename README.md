@@ -1,5 +1,5 @@
 # sd-webui-freeu
-This is an attempt to fix bug since original repo owner stop maintaining    
+This is an attempt to fix a [bug](https://github.com/ljleb/sd-webui-freeu/issues/52) since original repo owner stop maintaining    
 and make this bug into a feature (?) named "Loop Process"
 
 implementation of [FreeU](https://github.com/ChenyangSi/FreeU) as an [a1111 sd webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) extension
