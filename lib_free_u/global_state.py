@@ -53,6 +53,8 @@ class State:
     stop_ratio: Union[float, int] = 1.0
     transition_smoothness: float = 0.0
     process_loop: int = 1
+    freeu_og_cat = None
+    freeu_og_cn_cat = None
     version: str = "1"
     stage_infos: List[Union[StageInfo, dict, Any]] = dataclasses.field(default_factory=lambda: [StageInfo() for _ in range(STAGES_COUNT)])
 
