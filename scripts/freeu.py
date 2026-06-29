@@ -388,7 +388,8 @@ class FreeUScript(scripts.Script):
         global_state.xyz_attrs.clear()
         if not global_state.instance.enable:
             return
-
+        
+        unet.patch()
         last_d = False
         p.extra_generation_params["FreeU Stages"] = json.dumps(list(reversed([
             stage_info.to_dict()
@@ -455,10 +456,4 @@ def on_ui_settings():
 
 script_callbacks.on_ui_settings(on_ui_settings)
 
-if unet.freeu_og_cat is None:
-    unet.patch()
-
-if 'freeu_inited' not in globals():
-    xyz_grid.patch()
-
-freeu_inited = True
+xyz_grid.patch()
