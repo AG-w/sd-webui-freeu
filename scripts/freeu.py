@@ -99,6 +99,16 @@ class FreeUScript(scripts.Script):
                     value=0,
                 )
 
+                looping = gr.Slider(
+                    label="Loop Process",
+                    elem_id=self.elem_id("looping"),
+                    minimum=1,
+                    maximum=10,
+                    step=1,
+                    value=1,
+                )
+
+            
             flat_stage_infos = []
 
             for index in range(global_state.STAGES_COUNT):
@@ -186,6 +196,7 @@ class FreeUScript(scripts.Script):
                 gr.Slider.update(value=preset.start_ratio),
                 gr.Slider.update(value=preset.stop_ratio),
                 gr.Slider.update(value=preset.transition_smoothness),
+                gr.Slider.update(value=preset.looping if hasattr(preset, 'looping') else 1),
                 *[
                     gr.update(value=v)
                     for stage_info in preset.stage_infos
@@ -196,15 +207,16 @@ class FreeUScript(scripts.Script):
         apply_preset.click(
             fn=on_apply_click,
             inputs=[preset_name],
-            outputs=[start_ratio, stop_ratio, transition_smoothness, *flat_stage_infos],
+            outputs=[start_ratio, stop_ratio, transition_smoothness, looping, *flat_stage_infos],
         )
 
-        def on_save_click(preset_name, start_ratio, stop_ratio, transition_smoothness, *flat_stage_infos):
+        def on_save_click(preset_name, start_ratio, stop_ratio, transition_smoothness, looping, *flat_stage_infos):
             global_state.all_presets[preset_name] = global_state.State(
                 stage_infos=flat_stage_infos,
                 start_ratio=start_ratio,
                 stop_ratio=stop_ratio,
                 transition_smoothness=transition_smoothness,
+                process_loop=int(looping),
             )
             global_state.save_presets()
 
@@ -216,7 +228,7 @@ class FreeUScript(scripts.Script):
 
         save_preset.click(
             fn=on_save_click,
-            inputs=[preset_name, start_ratio, stop_ratio, transition_smoothness, *flat_stage_infos],
+            inputs=[preset_name, start_ratio, stop_ratio, transition_smoothness, looping, *flat_stage_infos],
             outputs=[preset_name, apply_preset, delete_preset],
         )
 
@@ -270,7 +282,7 @@ class FreeUScript(scripts.Script):
             schedule_infotext.change(
                 fn=self.on_schedule_infotext_update,
                 inputs=[schedule_infotext, steps_component],
-                outputs=[schedule_infotext, start_ratio, stop_ratio, transition_smoothness],
+                outputs=[schedule_infotext, start_ratio, stop_ratio, transition_smoothness, looping],
             )
 
         steps_component, steps_callbacks = (
@@ -303,19 +315,22 @@ class FreeUScript(scripts.Script):
         ]
         self.paste_field_names = [f for _, f in self.infotext_fields]
 
-        return enabled, start_ratio, stop_ratio, transition_smoothness, version, *flat_stage_infos
+        return enabled, start_ratio, stop_ratio, transition_smoothness, looping, version, *flat_stage_infos
 
     def on_schedule_infotext_update(self, infotext, steps):
         if not infotext:
-            return (gr.skip(),) * 4
+            return (gr.skip(),) * 5
 
-        start_ratio, stop_ratio, transition_smoothness, *_ = infotext.split(", ")
-
+        info_args = infotext.split(", ")
+        start_ratio, stop_ratio, transition_smoothness, *_ = info_args
+        looping = info_args[3] if len(info_args) > 3 else 1
+        
         return (
             gr.update(value=""),
             gr.update(value=unet.to_denoising_step(xyz_grid.int_or_float(start_ratio), steps) / steps),
             gr.update(value=unet.to_denoising_step(xyz_grid.int_or_float(stop_ratio), steps) / steps),
             gr.update(value=float(transition_smoothness)),
+            gr.update(value=looping),
         )
 
     def on_stages_infotext_update(self, infotext):
@@ -385,11 +400,15 @@ class FreeUScript(scripts.Script):
             str(global_state.instance.start_ratio),
             str(global_state.instance.stop_ratio),
             str(global_state.instance.transition_smoothness),
+            str(global_state.instance.process_loop),
         ])
         p.extra_generation_params["FreeU Version"] = global_state.instance.version
 
     def process_batch(self, p, *args, **kwargs):
         global_state.current_sampling_step = 0
+    
+    def postprocess_batch(self, p, *args, **kwargs):
+        unet.unpatch()
 
 
 def increment_sampling_step(*_args, **_kwargs):
@@ -436,8 +455,10 @@ def on_ui_settings():
 
 script_callbacks.on_ui_settings(on_ui_settings)
 
-if 'freeu_inited' not in globals():
+if unet.freeu_og_cat is None:
     unet.patch()
+
+if 'freeu_inited' not in globals():
     xyz_grid.patch()
 
 freeu_inited = True
