@@ -17,6 +17,7 @@ def patch():
         xyz_module.AxisOption("[FreeU] Start At Step", int_or_float, apply_global_state("start_ratio")),
         xyz_module.AxisOption("[FreeU] Stop At Step", int_or_float, apply_global_state("stop_ratio")),
         xyz_module.AxisOption("[FreeU] Transition Smoothness", int_or_float, apply_global_state("transition_smoothness")),
+        xyz_module.AxisOption("[FreeU] Loop Process", int_or_float, apply_global_state("process_loop")),
         *[
             opt
             for index in range(global_state.STAGES_COUNT)
