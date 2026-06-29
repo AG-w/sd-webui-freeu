@@ -1,5 +1,6 @@
 # sd-webui-freeu
-This is an attempt to fix bug since original repo owner stop maintaining
+This is an attempt to fix bug since original repo owner stop maintaining    
+and make this bug into a feature (?) named "Loop Process"
 
 implementation of [FreeU](https://github.com/ChenyangSi/FreeU) as an [a1111 sd webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) extension
 
@@ -12,6 +13,7 @@ At each of the 3 stages of the UNet decoder:
 - Start At Step: do not apply FreeU until this sampling step is reached
 - Stop At Step: apply FreeU until this sampling step is reached
 - Transition Smoothness: see $k_{smooth}$ in [this desmos graph](https://www.desmos.com/calculator/ngcqo5ictm)
+- \***New**\* Loop Process: Repeat the FreeU process in Unet to stack the effects
 - Backbone n Scale: scalar applied to the backbone window during UNet stage n
 - Backbone n Offset: offset of the window, 1 is the same as 0 as the window wraps around the downsampled latent features
 - Backbone n Width: width of the window applied to the backbone
