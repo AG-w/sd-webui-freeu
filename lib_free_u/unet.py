@@ -34,7 +34,8 @@ def patch():
 
 def unpatch():
     th.cat = global_state.instance.freeu_og_cat
-
+    global_state.instance.freeu_og_cat = None
+    
     cn_script_paths = [
         str(pathlib.Path(scripts.basedir()).parent.parent / "extensions-builtin" / "sd-webui-controlnet"),
         str(pathlib.Path(scripts.basedir()).parent / "sd-webui-controlnet"),
@@ -47,6 +48,7 @@ def unpatch():
         cn_status = "disabled"
     else:
         controlnet_hook.th.cat = global_state.instance.freeu_og_cn_cat
+        global_state.instance.freeu_og_cn_cat = None
     finally:
         for p in cn_script_paths:
             sys.path.remove(p)
