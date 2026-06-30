@@ -388,8 +388,11 @@ class FreeUScript(scripts.Script):
         global_state.xyz_attrs.clear()
         if not global_state.instance.enable:
             return
-        
+
+        if global_state.instance.freeu_og_cat is not None:
+            unet.unpatch()        
         unet.patch()
+        
         last_d = False
         p.extra_generation_params["FreeU Stages"] = json.dumps(list(reversed([
             stage_info.to_dict()
