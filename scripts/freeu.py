@@ -459,4 +459,7 @@ def on_ui_settings():
 
 script_callbacks.on_ui_settings(on_ui_settings)
 
-xyz_grid.patch()
+if 'freeu_inited' not in globals():
+    xyz_grid.patch()
+    
+freeu_inited = True
