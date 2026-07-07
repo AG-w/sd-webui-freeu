@@ -52,7 +52,7 @@ class State:
     start_ratio: Union[float, int] = 0.0
     stop_ratio: Union[float, int] = 1.0
     transition_smoothness: float = 0.0
-    process_loop: int = 1
+    process_loop: Union[float, int] = 1
     freeu_og_cat = None
     freeu_og_cn_cat = None
     version: str = "1"
