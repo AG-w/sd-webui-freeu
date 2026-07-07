@@ -412,7 +412,8 @@ class FreeUScript(scripts.Script):
         global_state.current_sampling_step = 0
     
     def postprocess_batch(self, p, *args, **kwargs):
-        unet.unpatch()
+        if global_state.instance.freeu_og_cat is not None:
+            unet.unpatch()
 
 
 def increment_sampling_step(*_args, **_kwargs):
