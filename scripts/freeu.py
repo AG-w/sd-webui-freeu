@@ -216,7 +216,7 @@ class FreeUScript(scripts.Script):
                 start_ratio=start_ratio,
                 stop_ratio=stop_ratio,
                 transition_smoothness=transition_smoothness,
-                process_loop=int(looping),
+                process_loop=looping,
             )
             global_state.save_presets()
 
