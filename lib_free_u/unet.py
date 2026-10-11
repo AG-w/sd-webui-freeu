@@ -10,7 +10,7 @@ import torch
 
 
 def patch():
-    global_state.instance.freeu_og_cat = th.cat
+    global_state.freeu_og_cat = th.cat
     th.cat = functools.partial(free_u_cat_hijack_wrap, original_function=th.cat)
 
     cn_script_paths = [
@@ -24,7 +24,7 @@ def patch():
     except ImportError:
         cn_status = "disabled"
     else:
-        global_state.instance.freeu_og_cn_cat = controlnet_hook.th.cat
+        global_state.freeu_og_cn_cat = controlnet_hook.th.cat
         controlnet_hook.th.cat = functools.partial(free_u_cat_hijack_wrap, original_function=controlnet_hook.th.cat)
     finally:
         for p in cn_script_paths:
@@ -33,8 +33,8 @@ def patch():
         #print("[sd-webui-freeu]", f"Controlnet support: *{cn_status}*")
 
 def unpatch():
-    th.cat = global_state.instance.freeu_og_cat
-    global_state.instance.freeu_og_cat = None
+    th.cat = global_state.freeu_og_cat
+    global_state.freeu_og_cat = None
     
     cn_script_paths = [
         str(pathlib.Path(scripts.basedir()).parent.parent / "extensions-builtin" / "sd-webui-controlnet"),
@@ -47,8 +47,8 @@ def unpatch():
     except ImportError:
         cn_status = "disabled"
     else:
-        controlnet_hook.th.cat = global_state.instance.freeu_og_cn_cat
-        global_state.instance.freeu_og_cn_cat = None
+        controlnet_hook.th.cat = global_state.freeu_og_cn_cat
+        global_state.freeu_og_cn_cat = None
     finally:
         for p in cn_script_paths:
             sys.path.remove(p)
