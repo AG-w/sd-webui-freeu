@@ -327,8 +327,8 @@ class FreeUScript(scripts.Script):
         
         return (
             gr.update(value=""),
-            gr.update(value=unet.to_denoising_step(xyz_grid.int_or_float(start_ratio), steps) / steps),
-            gr.update(value=unet.to_denoising_step(xyz_grid.int_or_float(stop_ratio), steps) / steps),
+            gr.update(value=start_ratio), #unet.to_denoising_step(xyz_grid.int_or_float(start_ratio), steps) / steps),
+            gr.update(value=stop_ratio), #unet.to_denoising_step(xyz_grid.int_or_float(stop_ratio), steps) / steps),
             gr.update(value=float(transition_smoothness)),
             gr.update(value=looping),
         )
@@ -389,8 +389,9 @@ class FreeUScript(scripts.Script):
         if not global_state.instance.enable:
             return
 
-        if global_state.instance.freeu_og_cat is not None:
-            unet.unpatch()        
+        if global_state.freeu_og_cat is not None:
+            unet.unpatch() 
+            
         unet.patch()
         
         last_d = False
@@ -412,7 +413,7 @@ class FreeUScript(scripts.Script):
         global_state.current_sampling_step = 0
     
     def postprocess_batch(self, p, *args, **kwargs):
-        if global_state.instance.freeu_og_cat is not None:
+        if global_state.freeu_og_cat is not None:
             unet.unpatch()
 
 
